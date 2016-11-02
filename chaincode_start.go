@@ -5,8 +5,8 @@ import(
 	"errors"
 	"fmt"
 	"strconv"
-	"time"
-	"string"
+//	"time"
+//	"string"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -32,7 +32,7 @@ func main() {
 }
 
 // Initialize the state of the 'Policies' variable
-func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("Initializing Policies")
 
 	// Encode empty array of strings into json
@@ -50,7 +50,7 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 	return nil, nil
 }
 
-func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("Invoking")
 
 	if function == "init" {
@@ -64,7 +64,7 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 }
 
 // Check the state of the chaincode
-func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("Querying: " + function)
 
 	if function == "read" {
@@ -75,14 +75,14 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 }
 
 // Write a value to a variable
-func (t *SimpleChaincode) Write(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	fmt.Println("Writing")
 
 	var name, value string
 	var err error
 
 	if len(args) != 2 {
-		return nil, errors.New("Expecting two arguments; arguments received: " + len(args))
+		return nil, errors.New("Expecting two arguments; arguments received: " + strconv.Itoa(len(args)))
 	}
 
 	name = args[0]
@@ -95,19 +95,19 @@ func (t *SimpleChaincode) Write(stub *shim.ChaincodeStub, args []string) ([]byte
 }
 
 // Read the state of a variable
-func (t *SimpleChaincode) Read(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var name, jsonResp string
 	var err error
 
 	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments; arguments received: " + len(args))
+		return nil, errors.New("Expecting one argument; arguments received: " + strconv.Itoa(len(args)))
 	}
 
 	name = args[0]
 	valAsBytes, err := stub.GetState(name)
 	if err != nil {
 		jsonResp = "{\"Error\": \"Failed to get state for " + name + "\"}"
-		return nil, errors.new(jsonResp)
+		return nil, errors.New(jsonResp)
 	}
 	
 	return valAsBytes, nil
