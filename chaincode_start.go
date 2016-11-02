@@ -37,7 +37,7 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 
 	// Encode empty array of strings into json
 	var blank []string
-	blankBytes, _ := json.Marshal(&blank)
+	blankBytes, _ := json.Marshal(&args[0])//json.Marshal(&blank)
 
 	// Set the state of the 'Cows' variable to blank
 	err := stub.PutState("Policies", blankBytes)
