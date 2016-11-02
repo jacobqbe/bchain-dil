@@ -71,7 +71,7 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 		return t.Read(stub, args)
 	}
 	fmt.Println("Query did not find a function: " + function)
-	return nil, error.New("Received unknown function query")
+	return nil, errors.New("Received unknown function query")
 }
 
 // Write a value to a variable
@@ -87,7 +87,7 @@ func (t *SimpleChaincode) Write(stub *shim.ChaincodeStub, args []string) ([]byte
 
 	name = args[0]
 	value = args[1]
-	err = stub.Putstate(name, []byte(value))
+	err = stub.PutState(name, []byte(value))
 	if err != nil {
 		return nil, err
 	}
