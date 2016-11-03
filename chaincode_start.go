@@ -6,8 +6,7 @@ import(
 	"fmt"
 	"strconv"
 	"time"
-	
-//	"github.com/satori/go.uuid"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
