@@ -166,7 +166,7 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 func (t *SimpleChaincode) getPendingPolicies(stub *shim.ChaincodeStub) ([]byte, error) {
 	valAsBytes, err := stub.GetState(pendingPoliciesString)
 	if err != nil {
-		jsonResp = "{\"Error\": \"Failed to get pending policies.\"}"
+		jsonResp := "{\"Error\": \"Failed to get pending policies.\"}"
 		return nil, errors.New(jsonResp)
 	}
 
