@@ -82,6 +82,8 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 
 	if function == "init" {
 		return t.Init(stub, "init", args)
+	} else if function == "generatePolicy" {
+		return t.generatePolicy(stub, args)
 	}
 	
 	fmt.Println("Invoke did not find a function: " + function)
@@ -102,7 +104,7 @@ json
 	return nil, nil
 }
 
-func (t *SimpleChaincode) initializePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
