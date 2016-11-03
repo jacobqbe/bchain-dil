@@ -56,18 +56,35 @@ func main() {
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 	fmt.Println("Initializing Policies")
 
-	// Encode empty array of strings into json
-	var blank []string
-	blankBytes, _ := json.Marshal(&blank)
+	// Initialize the catalogs for both pending and active policies
+	pendingCatalog := make([]Policy, 0)
+	activeCatalog := make([]Policy, 0)
 
+	//Create and marshal the active policies
+	var activePolicies AllPolicies
+	activePolicies.Catalog = activeCatalog
+	activeAsBytes, err := json.Marshal(activePolicies)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Create and marshal the pending policies
+	var pendingPolicies AllPolicies
+	pendingPolicies.Catalog = pendingCatalog
+	var pendingAsBytes []byte
+	pendingAsBytes, err = json.Marshal(pendingPolicies)
+	if err != nil {
+		return nil, err
+	}
+	
 	// Set the state of the 'Cows' variable to blank
-	err := stub.PutState(activePoliciesString, blankBytes)
+	err = stub.PutState(activePoliciesString, activeAsBytes)
 	if err != nil {
 		fmt.Println("Failed to initialize policies")
 		return nil, err
 	}
 
-	err = stub.PutState(pendingPoliciesString, blankBytes)
+	err = stub.PutState(pendingPoliciesString, pendingAsBytes)
 	if err != nil {
 		fmt.Println("Failed to initialize pending policies")
 		return nil, err
