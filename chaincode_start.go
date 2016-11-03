@@ -156,11 +156,23 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 	fmt.Println("Querying: " + function)
 
-	if function == "read" {
-		return t.read(stub, args)
+	if function == "getPendingPolicies" {
+		return t.getPendingPolicies(stub)
 	}
 	fmt.Println("Query did not find a function: " + function)
 	return nil, errors.New("Received unknown function query")
+}
+
+func (t *SimpleChaincode) getPendingPolicies(stub *shim.ChaincodeStub) ([]byte, error) {
+	valAsBytes, err := stub.GetState(pendingPoliciesString)
+	if err != nil {
+		jsonResp = "{\"Error\": \"Failed to get pending policies.\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	var pendingPolicies AllPolicies
+	json.Unmarshal(valAsBytes, &pendingPolicies)
+	return len(pendingPolicies.Catalog), nil
 }
 
 // Read the state of a variable
@@ -178,6 +190,8 @@ func (t *SimpleChaincode) read(stub *shim.ChaincodeStub, args []string) ([]byte,
 		jsonResp = "{\"Error\": \"Failed to get state for " + name + "\"}"
 		return nil, errors.New(jsonResp)
 	}
-	
+
+	var pendingPolicies AllPolicies
+	json.Unmarshal(valAsBytes, &pendingPolicies)
 	return valAsBytes, nil
 }
