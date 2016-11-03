@@ -172,26 +172,10 @@ func (t *SimpleChaincode) getPendingPolicies(stub *shim.ChaincodeStub) ([]byte, 
 
 	var pendingPolicies AllPolicies
 	json.Unmarshal(valAsBytes, &pendingPolicies)
-	return len(pendingPolicies.Catalog), nil
-}
-
-// Read the state of a variable
-func (t *SimpleChaincode) read(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	var name, jsonResp string
-	var err error
-
-	if len(args) != 1 {
-		return nil, errors.New("Expecting one argument; arguments received: " + strconv.Itoa(len(args)))
+	numPoliciesAsBytes, erro := json.Marshal(len(pendingPolicies.Catalog))
+	if erro != nil {
+		return nil, errors.New("Unable to marshal pendingPolicies.Catalog size")
 	}
-
-	name = args[0]
-	valAsBytes, err := stub.GetState(name)
-	if err != nil {
-		jsonResp = "{\"Error\": \"Failed to get state for " + name + "\"}"
-		return nil, errors.New(jsonResp)
-	}
-
-	var pendingPolicies AllPolicies
-	json.Unmarshal(valAsBytes, &pendingPolicies)
-	return valAsBytes, nil
+	
+	return numPoliciesAsBytes, nil
 }
