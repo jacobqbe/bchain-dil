@@ -1,0 +1,17 @@
+{
+	"ImportPath": "github.com/bchain-dil",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "github.com/hyperledger/fabric/core/chaincode/shim",
+			"Comment": "v0.6.1-preview-183-ga293bc9",
+			"Rev": "a293bc9bb61261f3c85c5de3210e255c03678004"
+		},
+		{
+			"ImportPath": "github.com/satori/go.uuid",
+			"Comment": "v1.1.0-6-gb061729",
+			"Rev": "b061729afc07e77a8aa4fad0a2fd840958f1942a"
+		}
+	]
+}
