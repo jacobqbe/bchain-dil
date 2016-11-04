@@ -51,6 +51,7 @@ var logger = shim.NewLogger("debug log")
 func main() {
 	err := shim.Start(new(SimpleChaincode))
 	logger.SetLevel(shim.LogDebug)
+	shim.SetLoggingLevel(shim.LogDebug)
 	
 	if err != nil {
 		fmt.Printf("Error starting simple chaincode: %s", err)
