@@ -1,12 +1,12 @@
 package main
 
 import(
-	"bytes"
+//	"bytes"
 	"encoding/json"
-	"encoding/binary"
+//	"encoding/binary"
 	"errors"
 	"fmt"
-	"strconv"
+//	"strconv"
 	"time"
 	
 //	"github.com/satori/go.uuid"
@@ -134,7 +134,7 @@ func createPolicyObject(holder string, countries []string) Policy {
 }
 
 func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	if len(args) < 2 {
+	/*if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
 
@@ -200,8 +200,5 @@ func (t *SimpleChaincode) getPendingPolicies(stub *shim.ChaincodeStub) ([]byte, 
 		return nil, errors.New(jsonResp)
 	}
 
-	//var pendingPolicies AllPolicies
-	//json.Unmarshal(valAsBytes, &pendingPolicies)
-	
 	return pendingAsBytes, nil
 }
