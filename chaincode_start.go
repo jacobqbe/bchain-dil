@@ -145,6 +145,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		countries[i] = args[i - 1]
 		i = i + 1
 	}
+	holderID = ""
 /*
 	newPolicy := createPolicyObject(holderID, countries)
 	
