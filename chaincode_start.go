@@ -24,8 +24,8 @@ type CarrierTerms struct {
 	CarrierID string `json:"carrier"`
 	Timestamp int64 `json:"timestamp"`
 	Country string `json:"country"`
-	Premium int32 `json:"premium"`
-	Value int32 `json:"value"`
+	Premium int64 `json:"premium"`
+	Value int64 `json:"value"`
 }
 
 type Policy struct {
@@ -109,18 +109,20 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	return nil, errors.New("Received unknown function invocation")
 }
 
-func (t *SimpleChaincode) createTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	/*
-json 
-{
-    "carrier_id" : string,
-    "country": string,
-    "premium":0.00,
-    "value" : 0.00
-}
+func createTerms(args []string) (CarrierTerms, error) {
+	var terms CarrierTerms
+	if len(args) != 4 {
+		return terms, errors.New("Expected 4 arguments; arguments received: " + strconv.Itoa(len(args)))
+	}
 
-*/
-	return nil, nil
+	var err error
+	terms.CarrierID = args[0]
+	terms.Timestamp = makeTimestamp()
+	terms.Country = args[1] 
+	terms.Premium, err = strconv.ParseInt(args[2], 10, 64)
+	terms.Value, err = strconv.ParseInt(args[3], 10, 64)
+	
+	return terms, nil
 }
 
 func createPolicyObject(holder string, countries []string) Policy {
