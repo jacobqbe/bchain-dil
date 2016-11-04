@@ -102,7 +102,7 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	if function == "init" {
 		return t.Init(stub, "init", args)
 	} else if function == "generatePolicy" {
-		j, err := t.generatePolicy(stub, args)
+		_, err := t.generatePolicy(stub, args)
 		return nil, err
 	}
 	
