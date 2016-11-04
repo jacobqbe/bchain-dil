@@ -102,7 +102,8 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	if function == "init" {
 		return t.Init(stub, "init", args)
 	} else if function == "generatePolicy" {
-		return t.generatePolicy(stub, args)
+		j, err := t.generatePolicy(stub, args)
+		return nil, err
 	}
 	
 	fmt.Println("Invoke did not find a function: " + function)
