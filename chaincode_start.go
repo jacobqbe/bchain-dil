@@ -1,7 +1,9 @@
 package main
 
 import(
+	"bytes"
 	"encoding/json"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"strconv"
@@ -121,36 +123,39 @@ json
 	return nil, nil
 }
 
+func createPolicyObject(holder string, countries []string) Policy {
+	var policy Policy
+	policy.Timestamp = makeTimestamp()
+	policy.HolderID = holder
+	policy.Countries = countries
+	policy.Terms = make([]CarrierTerms, len(countries))
+
+	return policy
+}
+
 func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
 
 	holderID := args[0]
-	
-	// Compile the list of countries for which the policy needs to be covered
 	countries := make([]string, len(args) - 1)
 	i := 1
 	for i < len(args) {
 		countries[i] = args[i - 1]
 		i = i + 1
 	}
-
-	// Build new policy object
-	var newPolicy Policy
-	newPolicy.Timestamp = makeTimestamp()
-	newPolicy.HolderID = holderID
-	newPolicy.Countries = countries
-	newPolicy.Terms = make([]CarrierTerms, len(countries))
-
+	newPolicy := createPolicyObject(holderID, countries)
+	
 	// Retrieve the current list of pending policies
-	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
+	pendingAsBytes, err := t.getPendingPolicies(stub) //stub.GetState(pendingPoliciesString)
 	if err != nil {
-		return nil, errors.New("Failed to get pending policies")
+		return nil, err
 	}
 
 	var pendingPolicies AllPolicies
-	json.Unmarshal(pendingAsBytes, &pendingPolicies)
+	buf := bytes.NewReader(pendingAsBytes)
+	err = binary.Read(buf, binary.LittleEndian, &pendingPolicies)
 
 	// Add the new policy to the list of pending policies
 	pendingPolicies.Catalog = append(pendingPolicies.Catalog, newPolicy)
@@ -161,12 +166,20 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		return nil, err
 	}
 	
-	err = stub.PutState(pendingPoliciesString, pendingAsBytes)
+	err = t.write(stub, pendingPoliciesString, pendingAsBytes)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("Policy successfully added to pending policies")
 	return nil, nil
+}
+
+func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, name string, value []byte) error {
+	err := stub.PutState(name, value)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Check the state of the chaincode
@@ -181,18 +194,14 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 }
 
 func (t *SimpleChaincode) getPendingPolicies(stub *shim.ChaincodeStub) ([]byte, error) {
-	valAsBytes, err := stub.GetState(pendingPoliciesString)
+	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
 	if err != nil {
 		jsonResp := "{\"Error\": \"Failed to get pending policies.\"}"
 		return nil, errors.New(jsonResp)
 	}
 
-	var pendingPolicies AllPolicies
-	json.Unmarshal(valAsBytes, &pendingPolicies)
-	numPoliciesAsBytes, erro := json.Marshal(len(pendingPolicies.Catalog))
-	if erro != nil {
-		return nil, errors.New("Unable to marshal pendingPolicies.Catalog size")
-	}
+	//var pendingPolicies AllPolicies
+	//json.Unmarshal(valAsBytes, &pendingPolicies)
 	
-	return numPoliciesAsBytes, nil
+	return pendingAsBytes, nil
 }
