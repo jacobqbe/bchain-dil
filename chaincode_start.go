@@ -241,8 +241,12 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	}
 
 	// TODO(jacob): remove completed policy from incompletePolicies and insert into pendingPolicies
-	
+	err = removePolicy(&incompletePolicies, index)
 	return nil, nil
+}
+
+func removePolicy(policies *AllPolicies, index int) error {
+	return nil
 }
 
 func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
