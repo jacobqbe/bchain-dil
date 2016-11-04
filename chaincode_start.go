@@ -122,7 +122,7 @@ func createTerms(args []string) (CarrierTerms, error) {
 	terms.Premium, err = strconv.ParseInt(args[2], 10, 64)
 	terms.Value, err = strconv.ParseInt(args[3], 10, 64)
 	
-	return terms, nil
+	return terms, err
 }
 
 func createPolicyObject(holder string, countries []string) Policy {
