@@ -14,28 +14,28 @@ import(
 type SimpleChaincode struct {}
 
 type PolicyHolder struct {
-	ID string
-	Policies []Policy
+	ID string `json:"id"`
+	Policies []Policy `json:"policies"`
 }
 
 type CarrierTerms struct {
-	CarrierID string
-	Timestamp int64
-	Country string
-	Premium int32
-	Value int32
+	CarrierID string `json:"carrier"`
+	Timestamp int64 `json:"timestamp"`
+	Country string `json:"country"`
+	Premium int32 `json:"premium"`
+	Value int32 `json:"value"`
 }
 
 type Policy struct {
 //	ID string
-	Timestamp int64
-	HolderID string
-	Countries []string
-	Terms []CarrierTerms
+	Timestamp int64 `json:"timestamp"`
+	HolderID string `json:"holderID"`
+	Countries []string `json:"countries"`
+	Terms []CarrierTerms `json:"terms"`
 }
 
 type AllPolicies struct {
-	Catalog []Policy
+	Catalog []Policy `json:"policies"`
 }
 
 var pendingPoliciesString = "_pendingPolicies"
@@ -139,29 +139,29 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		i = i + 1
 	}
 
-	// Generate new policy object
+	// Build new policy object
 	var newPolicy Policy
 //	newPolicy.ID = policyID
 	newPolicy.Timestamp = makeTimestamp()
 	newPolicy.HolderID = holderID
 	newPolicy.Countries = countries
-	//newPolicy.Terms = nil
+	newPolicy.Terms = nil
 
 	// Retrieve the current list of pending policies
-//	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
-//	if err != nil {
-//		return nil, errors.New("Failed to get pending policies")
-//	}
+	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
+	if err != nil {
+		return nil, errors.New("Failed to get pending policies")
+	}
 
 	var pendingPolicies AllPolicies
-//	json.Unmarshal(pendingAsBytes, &pendingPolicies)
+	json.Unmarshal(pendingAsBytes, &pendingPolicies)
 
 	// Add the new policy to the list of pending policies
-	pendingPolicies.Catalog = make([]Policy, 1) // append(pendingPolicies.Catalog, newPolicy)
-	pendingPolicies.Catalog[0] = newPolicy
+	pendingPolicies.Catalog = append(pendingPolicies.Catalog, newPolicy)
+//	pendingPolicies.Catalog[0] = newPolicy
 	fmt.Println("New policy appended to pending policies. Pending policy count: " + strconv.Itoa(len(pendingPolicies.Catalog)))
 
-	pendingAsBytes, err := json.Marshal(pendingPolicies)
+	pendingAsBytes, err = json.Marshal(pendingPolicies)
 	if err != nil {
 		return nil, err
 	}
