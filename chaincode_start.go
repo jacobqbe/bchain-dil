@@ -46,7 +46,7 @@ func makeTimestamp() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond)/int64(time.Nanosecond))
 }
 
-var logger = shim.NewLogger("myLogger")
+var logger = shim.NewLogger("debug log")
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
@@ -63,8 +63,8 @@ Methods for SimpleChaincode
 
 // Initialize the state of the 'Policies' variable
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	fmt.Println("Initializing Policies")
-
+	//fmt.Println("Initializing Policies")
+	logger.Debugf("initializing Policies")
 	// Initialize the catalogs for both pending and active policies
 	incompleteCatalog := make([]Policy, 0)
 	pendingCatalog := make([]Policy, 0)
