@@ -133,7 +133,7 @@ func createPolicyObject(holder string, countries []string) Policy {
 	return policy
 }
 
-func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) (string, error) {
 	if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
@@ -145,9 +145,9 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		countries[i] = args[i - 1]
 		i = i + 1
 	}
-
-	newPolicy := createPolicyObject(holderID, countries)
 	/*
+	newPolicy := createPolicyObject(holderID, countries)
+	
 	// Retrieve the current list of pending policies
 	pendingAsBytes, err := t.getPendingPolicies(stub) //stub.GetState(pendingPoliciesString)
 	if err != nil {
@@ -172,7 +172,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		return nil, err
 	}
 	fmt.Println("Policy successfully added to pending policies")
-*/	return nil, nil
+*/	return holderID, nil
 }
 
 func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, name string, value []byte) error {
