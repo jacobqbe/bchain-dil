@@ -145,10 +145,9 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		countries[i] = args[i - 1]
 		i = i + 1
 	}
-	holderID = ""
-/*
+
 	newPolicy := createPolicyObject(holderID, countries)
-	
+	/*
 	// Retrieve the current list of pending policies
 	pendingAsBytes, err := t.getPendingPolicies(stub) //stub.GetState(pendingPoliciesString)
 	if err != nil {
