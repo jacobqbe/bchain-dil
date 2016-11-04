@@ -126,9 +126,6 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
 
-	// Generate a new UUID for the new policy
-//	policyID := uuid.NewV4().String()
-
 	holderID := args[0]
 	
 	// Compile the list of countries for which the policy needs to be covered
@@ -141,11 +138,10 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 
 	// Build new policy object
 	var newPolicy Policy
-//	newPolicy.ID = policyID
 	newPolicy.Timestamp = makeTimestamp()
 	newPolicy.HolderID = holderID
 	newPolicy.Countries = countries
-	newPolicy.Terms = nil
+	newPolicy.Terms = make([]CarrierTerms, len(countries))
 
 	// Retrieve the current list of pending policies
 	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
@@ -158,7 +154,6 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 
 	// Add the new policy to the list of pending policies
 	pendingPolicies.Catalog = append(pendingPolicies.Catalog, newPolicy)
-//	pendingPolicies.Catalog[0] = newPolicy
 	fmt.Println("New policy appended to pending policies. Pending policy count: " + strconv.Itoa(len(pendingPolicies.Catalog)))
 
 	pendingAsBytes, err = json.Marshal(pendingPolicies)
