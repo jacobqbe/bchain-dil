@@ -64,7 +64,7 @@ Methods for SimpleChaincode
 // Initialize the state of the 'Policies' variable
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 	//fmt.Println("Initializing Policies")
-	logger.Debugf("initializing Policies")
+	logger.Debug("initializing Policies")
 	// Initialize the catalogs for both pending and active policies
 	incompleteCatalog := make([]Policy, 0)
 	pendingCatalog := make([]Policy, 0)
