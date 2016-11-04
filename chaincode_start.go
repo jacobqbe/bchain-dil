@@ -135,6 +135,7 @@ func createPolicyObject(holder string, countries []string) Policy {
 	var i = 1
 	for i < len(countries){
 		policy.Terms[i].Country = countries[i]
+		i = i + 1
 	}
 
 	return policy
