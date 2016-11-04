@@ -148,16 +148,17 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 	//newPolicy.Terms = nil
 
 	// Retrieve the current list of pending policies
-	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
-	if err != nil {
-		return nil, errors.New("Failed to get pending policies")
-	}
+//	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
+//	if err != nil {
+//		return nil, errors.New("Failed to get pending policies")
+//	}
 
 	var pendingPolicies AllPolicies
-	json.Unmarshal(pendingAsBytes, &pendingPolicies)
+//	json.Unmarshal(pendingAsBytes, &pendingPolicies)
 
 	// Add the new policy to the list of pending policies
-	pendingPolicies.Catalog = append(pendingPolicies.Catalog, newPolicy)
+	pendingPolicies.Catalog = make([]Policy, 1) // append(pendingPolicies.Catalog, newPolicy)
+	pendingPolicies.Catalog[0] = newPolicy
 	fmt.Println("New policy appended to pending policies. Pending policy count: " + strconv.Itoa(len(pendingPolicies.Catalog)))
 
 	pendingAsBytes, err = json.Marshal(pendingPolicies)
