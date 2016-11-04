@@ -130,6 +130,11 @@ func createPolicyObject(holder string, countries []string) Policy {
 	policy.Countries = countries
 	policy.Terms = make([]CarrierTerms, len(countries))
 
+	var i = 1
+	for i < len(countries){
+		policy.Terms[i].Country = countries[i]
+	}
+
 	return policy
 }
 
