@@ -7,7 +7,7 @@ import(
 	"strconv"
 	"time"
 	
-	"github.com/satori/go.uuid"
+//	"github.com/satori/go.uuid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -27,7 +27,7 @@ type CarrierTerms struct {
 }
 
 type Policy struct {
-	ID string
+//	ID string
 	Timestamp int64
 	HolderID string
 	Countries []string
@@ -127,7 +127,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 	}
 
 	// Generate a new UUID for the new policy
-	policyID := uuid.NewV4().String()
+//	policyID := uuid.NewV4().String()
 
 	holderID := args[0]
 	
@@ -141,11 +141,11 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 
 	// Generate new policy object
 	var newPolicy Policy
-	newPolicy.ID = policyID
+//	newPolicy.ID = policyID
 	newPolicy.Timestamp = makeTimestamp()
 	newPolicy.HolderID = holderID
 	newPolicy.Countries = countries
-	newPolicy.Terms = nil
+	//newPolicy.Terms = nil
 
 	// Retrieve the current list of pending policies
 	pendingAsBytes, err := stub.GetState(pendingPoliciesString)
