@@ -1,9 +1,9 @@
 package main
 
 import(
-//	"bytes"
+	"bytes"
 	"encoding/json"
-//	"encoding/binary"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"strconv"
@@ -102,8 +102,7 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	if function == "init" {
 		return t.Init(stub, "init", args)
 	} else if function == "generatePolicy" {
-		_, err := t.generatePolicy(stub, args)
-		return nil, err
+		return t.generatePolicy(stub, args)
 	}
 	
 	fmt.Println("Invoke did not find a function: " + function)
@@ -134,9 +133,9 @@ func createPolicyObject(holder string, countries []string) Policy {
 	return policy
 }
 
-func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) (string, error) {
+func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return "nil", errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
+		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
 
 	holderID := args[0]
@@ -148,7 +147,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		countries[i] = args[i - 1]
 		i = i + 1
 	}
-	
+	*/
 	newPolicy := createPolicyObject(holderID, countries)
 	
 	// Retrieve the current list of pending policies
@@ -175,7 +174,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		return nil, err
 	}
 	fmt.Println("Policy successfully added to pending policies")
-*/	return holderID, nil
+*/	return pendingAsBytes, nil
 }
 
 func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, name string, value []byte) error {
