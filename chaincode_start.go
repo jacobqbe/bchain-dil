@@ -135,7 +135,7 @@ func createPolicyObject(holder string, countries []string) Policy {
 
 func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string) (string, error) {
 	if len(args) < 2 {
-		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
+		return "nil", errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
 
 	holderID := args[0]
