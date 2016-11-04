@@ -137,7 +137,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 	if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
-/*
+
 	holderID := args[0]
 	countries := make([]string, len(args) - 1)
 	i := 1
@@ -145,6 +145,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		countries[i] = args[i - 1]
 		i = i + 1
 	}
+/*
 	newPolicy := createPolicyObject(holderID, countries)
 	
 	// Retrieve the current list of pending policies
