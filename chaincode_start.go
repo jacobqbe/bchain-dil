@@ -160,7 +160,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 	// Add the new policy to the list of pending policies
 	pendingPolicies.Catalog = append(pendingPolicies.Catalog, newPolicy)
 	fmt.Println("New policy appended to pending policies. Pending policy count: " + strconv.Itoa(len(pendingPolicies.Catalog)))
-
+/*
 	pendingAsBytes, err = json.Marshal(pendingPolicies)
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func (t *SimpleChaincode) generatePolicy(stub *shim.ChaincodeStub, args []string
 		return nil, err
 	}
 	fmt.Println("Policy successfully added to pending policies")
-	return nil, nil
+*/	return nil, nil
 }
 
 func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, name string, value []byte) error {
