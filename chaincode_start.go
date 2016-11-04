@@ -56,6 +56,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error starting simple chaincode: %s", err)
 	}
+	panic("PANIC")
 }
 
 /*
