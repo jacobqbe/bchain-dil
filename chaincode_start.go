@@ -295,9 +295,8 @@ func getPolicyByStamp(policies []Policy, stamp int64) (Policy, int, error) {
 	i = 0
 	fmt.Println("len(policies): " + strconv.Itoa(len(policies)))
 	for i < len(policies) {
-		//fmt.Println("policies[" + strconv.Itoa(i) + "]: " + strconv.FormatInt(policies[i].Timestamp, 10))
 		fmt.Println(strconv.FormatInt(policies[i].Timestamp, 10))
-		if policies[i].Timestamp == stamp {
+		if strconv.FormatInt(policies[i].Timestamp, 10) == strconv.FormatInt(stamp, 10) {
 			fmt.Println("timestamp match found")
 			return policies[i], i, nil
 		}
