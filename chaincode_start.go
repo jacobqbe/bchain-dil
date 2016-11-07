@@ -49,6 +49,8 @@ func makeTimestamp() int64 {
 var logger = shim.NewLogger("debug log")
 
 func main() {
+	fmt.Println("Function: main")
+	
 	err := shim.Start(new(SimpleChaincode))
 	logger.SetLevel(shim.LogDebug)
 	shim.SetLoggingLevel(shim.LogDebug)
@@ -56,7 +58,6 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error starting simple chaincode: %s", err)
 	}
-	panic("PANIC")
 }
 
 /*
@@ -65,8 +66,8 @@ Methods for SimpleChaincode
 
 // Initialize the state of the 'Policies' variable
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	//fmt.Println("Initializing Policies")
-	logger.Debugf("initializing Policies")
+	fmt.Println("Method: SimpleChaincode.Init")
+
 	// Initialize the catalogs for both pending and active policies
 	incompleteCatalog := make([]Policy, 0)
 	pendingCatalog := make([]Policy, 0)
@@ -116,13 +117,13 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 		return nil, err
 	}
 
-	logger.Errorf("Initialization complete")
+	fmt.Println("Initialization complete")
 	return nil, nil
 }
 
 // Manipulate the blockchain
 func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	fmt.Println("Invoking")
+	fmt.Println("Method: SimpleChaincode.Invoke; received" + function)
 
 	if function == "init" {
 		return t.Init(stub, "init", args)
@@ -138,7 +139,7 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 
 // Check the state of the blockchain
 func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	fmt.Println("Querying: " + function)
+	fmt.Println("Method: SimpleChaincode.Query; received: " + function)
 
 	if function == "getPendingPolicies" {
 		return getPolicies(stub, pendingPoliciesString)
@@ -158,6 +159,8 @@ These include adding values to arrays on the blockchain and verification of perm
 */
 
 func generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+	fmt.Println("Function: generatePolicy")
+
 	if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
@@ -197,6 +200,8 @@ func generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 }
 
 func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+	fmt.Println("Function: assignTerms")
+	
 	// args should include the terms of the policy and the timestamp for the policy that it will be assigned to
 	if len(args) != 5 {
 		return nil, errors.New("Expecting 5 arguments; arguments received: " + strconv.Itoa(len(args)))
@@ -248,10 +253,13 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 }
 
 func removePolicy(policies *AllPolicies, index int) error {
+	fmt.Println("Function: removePolicy")
 	return nil
 }
 
 func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
+	fmt.Println("Function: bytesToAllPolicies")
+	
 	var policies AllPolicies
 	buf := bytes.NewReader(policiesAsBytes)
 	err := binary.Read(buf, binary.LittleEndian, &policies)
@@ -260,6 +268,8 @@ func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
 }
 
 func checkComplete(policy Policy) error {
+	fmt.Println("Function: checkComplete")
+
 	i := 1
 	for i < len(policy.Terms) {
 		if policy.Terms[i].Timestamp == 0 {
@@ -267,10 +277,13 @@ func checkComplete(policy Policy) error {
 		}
 		i = i + 1
 	}
+	fmt.Println("Policy complete")
 	return nil
 }
 
 func getPolicyByStamp(policies []Policy, stamp int64) (Policy, int, error) {
+	fmt.Println("Function: getPolicyByStamp")
+	
 	var i int
 	i = 1
 	for i < len(policies) {
@@ -285,10 +298,13 @@ func getPolicyByStamp(policies []Policy, stamp int64) (Policy, int, error) {
 }
 
 func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
+	fmt.Println("Function: insertTermsIntoPolicy")
+	
 	i := 1
 	for i < len(policy.Terms) {
 		if policy.Terms[i].Country == terms.Country && policy.Terms[i].Timestamp == 0 {
 			policy.Terms[i] = terms
+			fmt.Println("Policy found; terms inserted")
 			return nil
 		}
 		i = i + 1
@@ -301,6 +317,8 @@ Functions for directly reading & writing to the blockchain
 */
 
 func write(stub *shim.ChaincodeStub, name string, value []byte) error {
+	fmt.Println("Function: write")
+	
 	err := stub.PutState(name, value)
 	if err != nil {
 		return err
@@ -309,6 +327,8 @@ func write(stub *shim.ChaincodeStub, name string, value []byte) error {
 }
 
 func getPolicies(stub *shim.ChaincodeStub, policiesString string) ([]byte, error) {
+	fmt.Println("Function: getPolicies (" + policiesString + ")")
+	
 	policiesAsBytes, err := stub.GetState(policiesString)
 	if err != nil {
 		jsonResp := "{\"Error\": \"Failed to get policies.\"}"
@@ -323,6 +343,8 @@ Functions for creating objects
 */
 
 func createTerms(args []string) (CarrierTerms, error) {
+	fmt.Println("Function: createTerms")
+	
 	var terms CarrierTerms
 	if len(args) != 4 {
 		return terms, errors.New("Expected 4 arguments; arguments received: " + strconv.Itoa(len(args)))
@@ -339,6 +361,8 @@ func createTerms(args []string) (CarrierTerms, error) {
 }
 
 func createPolicyObject(holder string, countries []string) Policy {
+	fmt.Println("Function: createPolicyObject")
+	
 	var policy Policy
 	policy.Timestamp = makeTimestamp()
 	policy.HolderID = holder
