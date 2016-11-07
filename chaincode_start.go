@@ -21,14 +21,14 @@ type PolicyHolder struct {
 
 type CarrierTerms struct {
 	CarrierID string `json:"carrier"`
-	Timestamp int64 `json:"timestamp"`
+	ID string `json:"timestamp"`
 	Country string `json:"country"`
 	Premium int64 `json:"premium"`
 	Value int64 `json:"value"`
 }
 
 type Policy struct {
-	Timestamp int64 `json:"timestamp"`
+	ID string `json:"id"`
 	HolderID string `json:"holderID"`
 	Countries []string `json:"countries"`
 	Terms []CarrierTerms `json:"terms"`
@@ -42,8 +42,18 @@ var incompletePoliciesString = "_incompletePolicies"
 var pendingPoliciesString = "_pendingPolicies"
 var activePoliciesString = "_activePolicies"
 
-func makeTimestamp() int64 {
-	return time.Now().UnixNano() / (int64(time.Millisecond)/int64(time.Nanosecond))
+func makeHash(args []string) string {
+	if len(args) < 0 {
+		return "no_hash_can_be_generated"
+	}
+
+	i := 1
+	s := ""
+	for i < len(args){
+		s = s + args[i]
+		i = i + 1
+	}
+	return s
 }
 
 var logger = shim.NewLogger("debug log")
@@ -164,11 +174,7 @@ func generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	if len(args) < 2 {
 		return nil, errors.New("Expected multiple arguments; arguments received: " +  strconv.Itoa(len(args)))
 	}
-
-	holderID := args[0]
-
-	countries := args[1:]
-	newPolicy := createPolicyObject(holderID, countries)
+	newPolicy := createPolicyObject(args)
 	
 	// Retrieve the current list of pending policies
 	incompleteAsBytes, err := getPolicies(stub, incompletePoliciesString)
@@ -223,10 +229,10 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 		return nil, errors.New("No incomplete policies were found")
 	}
 	
-	policyStamp, _ := strconv.ParseInt(args[0], 10, 64)
+	policyHash := args[0]
 	var targetPolicy Policy
 	var index int
-	targetPolicy, index, err = getPolicyByStamp(incompletePolicies.Catalog, policyStamp)
+	targetPolicy, index, err = getPolicyByHash(incompletePolicies.Catalog, policyHash)
 	if err != nil {
 		return nil, err
 	}
@@ -264,11 +270,6 @@ func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
 	var policies AllPolicies
 
 	err := json.Unmarshal(policiesAsBytes, &policies)
-	/*buf := bytes.NewReader(policiesAsBytes)
-	fmt.Println("byte buffer created")
-	
-	err := binary.Read(buf, binary.LittleEndian, &policies)
-*/	
 	fmt.Println("json.Unmarshal error:")
 	fmt.Println(err)
 	
@@ -280,7 +281,7 @@ func checkComplete(policy Policy) error {
 
 	i := 1
 	for i < len(policy.Terms) {
-		if policy.Terms[i].Timestamp == 0 {
+		if policy.Terms[i].ID == "" {
 			return errors.New("Policy incomplete")
 		}
 		i = i + 1
@@ -289,22 +290,19 @@ func checkComplete(policy Policy) error {
 	return nil
 }
 
-func getPolicyByStamp(policies []Policy, stamp int64) (Policy, int, error) {
-	fmt.Println("Function: getPolicyByStamp (" + strconv.FormatInt(stamp, 10) + ")")
+func getPolicyByHash(policies []Policy, hash string) (Policy, int, error) {
+
 	var i int
 	i = 0
-	fmt.Println("len(policies): " + strconv.Itoa(len(policies)))
 	for i < len(policies) {
-		fmt.Println(strconv.FormatInt(policies[i].Timestamp, 10))
-		if strconv.FormatInt(policies[i].Timestamp, 10) == strconv.FormatInt(stamp, 10) {
-			fmt.Println("timestamp match found")
+		if policies[i].ID == hash {
 			return policies[i], i, nil
 		}
 		i = i + 1
 	}
 	
 	var noPolicy Policy
-	return noPolicy, 0, errors.New("No policy found with stamp: " + strconv.FormatInt(stamp, 64))
+	return noPolicy, 0, errors.New("No policy found with hash: " + hash)
 }
 
 func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
@@ -312,7 +310,7 @@ func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
 	
 	i := 1
 	for i < len(policy.Terms) {
-		if policy.Terms[i].Country == terms.Country && policy.Terms[i].Timestamp == 0 {
+		if policy.Terms[i].Country == terms.Country && policy.Terms[i].ID == "" {
 			policy.Terms[i] = terms
 			fmt.Println("Policy found; terms inserted")
 			return nil
@@ -362,7 +360,7 @@ func createTerms(args []string) (CarrierTerms, error) {
 
 	var err error
 	terms.CarrierID = args[0]
-	terms.Timestamp = makeTimestamp()
+	terms.ID = makeHash(args)
 	terms.Country = args[1] 
 	terms.Premium, err = strconv.ParseInt(args[2], 10, 64)
 	terms.Value, err = strconv.ParseInt(args[3], 10, 64)
@@ -370,11 +368,13 @@ func createTerms(args []string) (CarrierTerms, error) {
 	return terms, err
 }
 
-func createPolicyObject(holder string, countries []string) Policy {
+func createPolicyObject(args []string) Policy {
 	fmt.Println("Function: createPolicyObject")
 	
 	var policy Policy
-	policy.Timestamp = makeTimestamp()
+	holder := args[0]
+	countries := args[1:]
+	policy.ID = makeHash(args)
 	policy.HolderID = holder
 	policy.Countries = countries
 	policy.Terms = make([]CarrierTerms, len(countries))
