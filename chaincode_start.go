@@ -290,12 +290,14 @@ func checkComplete(policy Policy) error {
 }
 
 func getPolicyByStamp(policies []Policy, stamp int64) (Policy, int, error) {
-	fmt.Println("Function: getPolicyByStamp")
-	
+	fmt.Println("Function: getPolicyByStamp (" + strconv.FormatInt(stamp, 10) + ")")
 	var i int
 	i = 1
+	var timestamp int64
 	for i < len(policies) {
+		fmt.Println("policies[" + strconv.Itoa(i) + "]: " + strconv.FormatInt(policies[i].Timestamp, 10))
 		if policies[i].Timestamp == stamp {
+			fmt.Println("timestamp match found")
 			return policies[i], i, nil
 		}
 		i = i + 1
