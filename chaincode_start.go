@@ -20,7 +20,7 @@ type PolicyHolder struct {
 
 type CarrierTerms struct {
 	CarrierID string `json:"carrier"`
-	ID string `json:"timestamp"`
+	ID string `json:"id"`
 	Country string `json:"country"`
 	Premium int64 `json:"premium"`
 	Value int64 `json:"value"`
@@ -309,10 +309,13 @@ func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
 	
 	i := 1
 	for i < len(policy.Terms) {
-		if policy.Terms[i].Country == terms.Country && policy.Terms[i].ID == "" {
-			policy.Terms[i] = terms
-			fmt.Println("Policy found; terms inserted")
-			return nil
+		if policy.Terms[i].Country == terms.Country {
+			fmt.Println(policy.Terms[i].ID) //
+			if policy.Terms[i].ID == "" {
+				policy.Terms[i] = terms
+				fmt.Println("Policy found; terms inserted")
+				return nil
+			}
 		}
 		i = i + 1
 	}
