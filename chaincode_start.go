@@ -306,9 +306,10 @@ func getPolicyByHash(policies []Policy, hash string) (Policy, int, error) {
 
 func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
 	fmt.Println("Function: insertTermsIntoPolicy")
-	
+	fmt.Println("country: " + terms.Country)
 	i := 1
 	for i < len(policy.Terms) {
+		fmt.Println("policy.Terms.Country: " + policy.Terms[i].Country)
 		if policy.Terms[i].Country == terms.Country {
 			fmt.Println(policy.Terms[i].ID) //
 			if policy.Terms[i].ID == "" {
@@ -374,10 +375,10 @@ func createPolicyObject(args []string) Policy {
 	fmt.Println("Function: createPolicyObject")
 	
 	var policy Policy
-	holder := args[0]
-	countries := args[1:]
 	policy.ID = makeHash(args)
-	policy.HolderID = holder
+	policy.HolderID = args[0]
+
+	countries := args[1:]
 	policy.Countries = countries
 	policy.Terms = make([]CarrierTerms, len(countries))
 
