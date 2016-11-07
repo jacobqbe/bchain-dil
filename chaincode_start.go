@@ -1,9 +1,9 @@
 package main
 
 import(
-	"bytes"
+	//"bytes"
 	"encoding/json"
-	"encoding/binary"
+	//"encoding/binary"
 	"errors"
 	"fmt"
 	"strconv"
@@ -262,11 +262,14 @@ func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
 	fmt.Println("Function: bytesToAllPolicies")
 	
 	var policies AllPolicies
-	buf := bytes.NewReader(policiesAsBytes)
+
+	err := json.Unmarshal(policiesAsBytes, &policies)
+	/*buf := bytes.NewReader(policiesAsBytes)
 	fmt.Println("byte buffer created")
 	
 	err := binary.Read(buf, binary.LittleEndian, &policies)
-	fmt.Println("binary read error:")
+*/	
+	fmt.Println("json.Unmarshal error:")
 	fmt.Println(err)
 	
 	return policies, err
