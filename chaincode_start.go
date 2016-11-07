@@ -123,7 +123,7 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 
 // Manipulate the blockchain
 func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
-	fmt.Println("Method: SimpleChaincode.Invoke; received" + function)
+	fmt.Println("Method: SimpleChaincode.Invoke; received: " + function)
 
 	if function == "init" {
 		return t.Init(stub, "init", args)
@@ -190,12 +190,13 @@ func generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("incomplete policies successfully converted to bytes")
 	
 	err = write(stub, incompletePoliciesString, incompleteAsBytes)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Policy successfully added to incomplete policies")
+	fmt.Println("incomplete policies successfully rewritten with new policy")
 	return nil, nil
 }
 
@@ -262,8 +263,12 @@ func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
 	
 	var policies AllPolicies
 	buf := bytes.NewReader(policiesAsBytes)
+	fmt.Println("byte buffer created")
+	
 	err := binary.Read(buf, binary.LittleEndian, &policies)
-
+	fmt.Println("binary read error:")
+	fmt.Println(err)
+	
 	return policies, err
 }
 
