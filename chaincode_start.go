@@ -46,7 +46,7 @@ func makeHash(args []string) string {
 		return "no_hash_can_be_generated"
 	}
 
-	i := 1
+	i := 0
 	s := ""
 	for i < len(args){
 		s = s + args[i]
@@ -278,7 +278,7 @@ func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
 func checkComplete(policy Policy) error {
 	fmt.Println("Function: checkComplete")
 
-	i := 1
+	i := 0
 	for i < len(policy.Terms) {
 		if policy.Terms[i].ID == "" {
 			return errors.New("Policy incomplete")
@@ -307,7 +307,7 @@ func getPolicyByHash(policies []Policy, hash string) (Policy, int, error) {
 func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
 	fmt.Println("Function: insertTermsIntoPolicy")
 	fmt.Println("country: " + terms.Country)
-	i := 1
+	i := 0
 	for i < len(policy.Terms) {
 		fmt.Println("policy.Terms.Country: " + policy.Terms[i].Country)
 		if policy.Terms[i].Country == terms.Country {
