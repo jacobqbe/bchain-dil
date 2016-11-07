@@ -229,9 +229,9 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	}
 	
 	policyHash := args[0]
-	var targetPolicy Policy
+	//var targetPolicy Policy
 	var index int
-	targetPolicy, index, err = getPolicyByHash(incompletePolicies.Catalog, policyHash)
+	index, err = getPolicyByHash(incompletePolicies.Catalog, policyHash)
 	if err != nil {
 		return nil, err
 	}
@@ -243,12 +243,12 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	err = insertTermsIntoPolicy(&targetPolicy, carrierTerms)
+	err = insertTermsIntoPolicy(&incompletePolicies.Catalog[index], carrierTerms)
 	if err != nil {
 		return nil, err
 	}
 
-	err = checkComplete(targetPolicy)
+	err = checkComplete(incompletePolicies.Catalog[index])
 	if err != nil {
 		return nil, nil
 	}
@@ -289,19 +289,19 @@ func checkComplete(policy Policy) error {
 	return nil
 }
 
-func getPolicyByHash(policies []Policy, hash string) (Policy, int, error) {
-
+func getPolicyByHash(policies []Policy, hash string) (int, error) {
+	fmt.Println("Function: getPolicyByHash")
+	
 	var i int
 	i = 0
 	for i < len(policies) {
 		if policies[i].ID == hash {
-			return policies[i], i, nil
+			return i, nil
 		}
 		i = i + 1
 	}
 	
-	var noPolicy Policy
-	return noPolicy, 0, errors.New("No policy found with hash: " + hash)
+	return 0, errors.New("No policy found with hash: " + hash)
 }
 
 func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
