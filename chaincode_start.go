@@ -315,6 +315,7 @@ func insertTermsIntoPolicy(policy *Policy, terms CarrierTerms) error {
 			if policy.Terms[i].ID == "" {
 				policy.Terms[i] = terms
 				fmt.Println("Policy found; terms inserted")
+				fmt.Println("Carrier: " + policy.Terms[i].CarrierID);
 				return nil
 			}
 		}
