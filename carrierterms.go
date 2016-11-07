@@ -95,6 +95,19 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	// TODO(jacob): remove completed policy from incompletePolicies and insert into pendingPolicies
 	pendingPolicy := removePolicy(&incompletePolicies, index)
 	fmt.Println("pendingPolicy removed from incomplete policies")
+
+	incompleteAsBytes, err = json.Marshal(incompletePolicies)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("incomplete policies converted to bytes")
+
+	err = write(stub, incompletePoliciesString, incompleteAsBytes)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("incomplete policies successfully written")
+	
 	err = addPendingPolicy(stub, pendingPolicy)
 	if err != nil {
 		return nil, err
