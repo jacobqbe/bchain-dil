@@ -250,6 +250,15 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 
 	err = checkComplete(incompletePolicies.Catalog[index])
 	if err != nil {
+		incompleteAsBytes, err = json.Marshal(incompletePolicies)
+		if err != nil {
+			return nil, err
+		}
+		err = write(stub, incompletePoliciesString, incompleteAsBytes)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("incomplete policies successfully written with new terms")
 		return nil, nil
 	}
 
