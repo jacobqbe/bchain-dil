@@ -24,7 +24,8 @@ func addPendingPolicy(stub *shim.ChaincodeStub, policy Policy) error {
 	}
 	fmt.Println("pending policies derived from bytes")
 
-	//TODO(jacob): initialize votes on policy
+	votes := make([]Approval, len(policy.Terms))
+	policy.Votes = votes
 	
 	pendingPolicies.Catalog = append(pendingPolicies.Catalog, policy)
 	fmt.Println("policy appended to pending policies")
@@ -87,7 +88,6 @@ func castVote(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 		if pendingPolicies.Catalog[policyIndex].Votes[i].Vote != "approve" {
 			incompletePolicy := removePolicy(&pendingPolicies, policyIndex)
 
-			var b []byte
 			policyArgs := make([]string, len(incompletePolicy.Countries) + 1)
 			policyArgs[0] = incompletePolicy.HolderID
 			j := 0
