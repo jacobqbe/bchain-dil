@@ -94,8 +94,8 @@ func castVote(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 			for j < len(incompletePolicy.Countries) {
 				policyArgs[j + 1] = incompletePolicy.Countries[j]
 			}
-			var b []byte
-			b, err = generatePolicy(stub, policyArgs)
+		
+			_, err = generatePolicy(stub, policyArgs)
 			if err != nil {
 				return nil, err
 			}
