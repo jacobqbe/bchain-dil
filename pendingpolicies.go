@@ -142,6 +142,7 @@ func checkActive(policy *Policy) error {
 		if policy.Votes[i].CarrierID == "" {
 			return errors.New("Not all votes have been cast")
 		}
+		i = i + 1
 	}	
 	return nil
 }
