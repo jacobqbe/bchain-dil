@@ -1,10 +1,9 @@
 package main
 
-import(
+import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -13,6 +12,15 @@ type SimpleChaincode struct {}
 var incompletePoliciesString = "_incompletePolicies"
 var pendingPoliciesString = "_pendingPolicies"
 var activePoliciesString = "_activePolicies"
+
+func main() {
+	fmt.Println("Function: main")
+	
+	err := shim.Start(new(SimpleChaincode))	
+	if err != nil {
+		fmt.Printf("Error starting simple chaincode: %s", err)
+	}
+}
 
 func makeHash(args []string) string {
 	if len(args) < 0 {
@@ -28,16 +36,6 @@ func makeHash(args []string) string {
 	return s
 }
 
-func main() {
-	fmt.Println("Function: main")
-	
-	err := shim.Start(new(SimpleChaincode))	
-	if err != nil {
-		fmt.Printf("Error starting simple chaincode: %s", err)
-	}
-}
-
-// Initialize the state of the 'Policies' variable
 func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 	fmt.Println("Method: SimpleChaincode.Init")
 
@@ -103,6 +101,8 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 		return generatePolicy(stub, args)
 	} else if function == "assignTerms" {
 		return assignTerms(stub, args)
+	} else if function == "castVote" {
+		return castVote(stub, args)
 	}
 	
 	fmt.Println("Invoke did not find a function: " + function)
