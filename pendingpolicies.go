@@ -106,6 +106,7 @@ func castVote(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 			fmt.Println("pending policies successfully written after removal of incomplete policy")
 			return nil, nil
 		}
+		i = i + 1
 	}
 	activePolicy := removePolicy(&pendingPolicies, policyIndex)
 	err = addActivePolicy(stub, activePolicy)
