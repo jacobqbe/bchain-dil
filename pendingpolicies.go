@@ -49,24 +49,21 @@ func castVote(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	carrierID := args[1]
 	voteCast := args[2]
 
-	pendingAsBytes, err := getPolicies(stub, pendingPoliciesString)
+	if voteCast != "approve" && voteCast != "disapprove" {
+		return nil, errors.New("Invalid vote: " + voteCast)
+	}
+	
+	pendingPolicies, err := readPolicies(stub, pendingPoliciesString)
 	if err != nil {
 		return nil, err
 	}
-
-	var pendingPolicies AllPolicies
-	pendingPolicies, err = bytesToAllPolicies(pendingAsBytes)
-	if err != nil {
-		return nil, err
-	}
-
+	
 	var policyIndex int
 	policyIndex, err = getPolicyByHash(pendingPolicies.Catalog, policyID)
 	if err != nil {
 		return nil, err
 	}
 	
-	//TODO(jacob): confirm that carrierID matches a carrier on the policy & that policy has not been voted on by carrier
 	i := 0
 	for i < len(pendingPolicies.Catalog[policyIndex].Terms) {
 		if pendingPolicies.Catalog[policyIndex].Terms[i].CarrierID == carrierID {
@@ -77,21 +74,55 @@ func castVote(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 
 	err = checkActive(&pendingPolicies.Catalog[policyIndex])
 	if err != nil {
+		err = writePolicies(stub, pendingPoliciesString, pendingPolicies)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("pending policies successfully written with new vote(s)")
+		return nil, nil
+	}
+
+	i = 0
+	for i < len(pendingPolicies.Catalog[policyIndex].Votes) {
+		if pendingPolicies.Catalog[policyIndex].Votes[i].Vote != "approve" {
+			incompletePolicy := removePolicy(&pendingPolicies, policyIndex)
+
+			var b []byte
+			policyArgs := make([]string, len(incompletePolicy.Countries) + 1)
+			policyArgs[0] = incompletePolicy.HolderID
+			j := 0
+			for j < len(incompletePolicy.Countries) {
+				policyArgs[j + 1] = incompletePolicy.Countries[j]
+			}
+			b, err = generatePolicy(stub, policyArgs)
+			if err != nil {
+				return nil, err
+			}
+			err = writePolicies(stub, pendingPoliciesString, pendingPolicies)
+			if err != nil {
+				return nil, err
+			}
+			fmt.Println("pending policies successfully written after removal of incomplete policy")
+			return nil, nil
+		}
+	}
+	activePolicy := removePolicy(&pendingPolicies, policyIndex)
+	err = addActivePolicy(stub, activePolicy)
+	if err != nil {
 		return nil, err
 	}
-	//TODO(jacob): check to determine that no votes remain to be cast
-	// this should probably be a function, so that it can be called from other functions as well
+	err = writePolicies(stub, pendingPoliciesString, pendingPolicies)
+	if err != nil {
+		return nil, err
+	}
 	
-	//TODO(jacob): if all votes have been cast, check that there are no negative votes
-	// if all votes are positive, remove policy from pendingPolicies and add to activePolicies
-	// if not all votes are positive, check that this policy exists in activePolicies
-	// if it does, simply remove from pendingPolicies. Otherwise move from pendingPolicies to
-	// incompletePolicies
-	
+	fmt.Println("pending policies successfully written after moving policy to active policies")	
 	return nil, nil
 }
 
 func vote(policy *Policy, index int, carrierID string, vote string) error {
+	fmt.Println("Function: vote")
+	
 	if policy.Votes[index].Vote != "" {
 		return errors.New("vote has already been cast")
 	}
@@ -102,5 +133,13 @@ func vote(policy *Policy, index int, carrierID string, vote string) error {
 }
 
 func checkActive(policy *Policy) error {
+	fmt.Println("Function: checkActive")
+	
+	i := 0
+	for i < len(policy.Votes) {
+		if policy.Votes[i].CarrierID == "" {
+			return errors.New("Not all votes have been cast")
+		}
+	}	
 	return nil
 }

@@ -42,6 +42,42 @@ func bytesToAllPolicies(policiesAsBytes []byte) (AllPolicies, error) {
 	return policies, err
 }
 
+func readPolicies(stub *shim.ChaincodeStub, policiesString string) (AllPolicies, error){
+	fmt.Println("Function: readPolicies")
+	
+	var policies AllPolicies
+	policiesAsBytes, err := getPolicies(stub, policiesString)
+	if err != nil {
+		return policies, err
+	}
+	fmt.Println("policies retrieved as bytes")
+	
+	policies, err = bytesToAllPolicies(policiesAsBytes)
+	if err != nil {
+		return policies, err
+	}
+	fmt.Println("policies retrieved from bytes")
+	
+	return policies, nil
+}
+
+func writePolicies(stub *shim.ChaincodeStub, policiesString string, policies AllPolicies) error {
+	fmt.Println("Function: writePolicies")
+	
+	policiesAsBytes, err := json.Marshal(policies)
+	if err != nil {
+		return err
+	}
+	fmt.Println("policies converted to bytes")
+	
+	err = write(stub, policiesString, policiesAsBytes)
+	if err != nil {
+		return err
+	}
+	fmt.Println("policies written")
+	return nil
+}
+
 func getPolicyByHash(policies []Policy, hash string) (int, error) {
 	fmt.Println("Function: getPolicyByHash")
 	

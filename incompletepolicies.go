@@ -55,13 +55,7 @@ func generatePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	incompletePolicies.Catalog = append(incompletePolicies.Catalog, newPolicy)
 	fmt.Println("New policy appended to incomplete policies. Incomplete policy count: " + strconv.Itoa(len(incompletePolicies.Catalog)))
 
-	incompleteAsBytes, err = json.Marshal(incompletePolicies)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("incomplete policies successfully converted to bytes")
-	
-	err = write(stub, incompletePoliciesString, incompleteAsBytes)
+	err = writePolicies(stub, incompletePoliciesString, incompletePolicies)
 	if err != nil {
 		return nil, err
 	}
@@ -152,13 +146,7 @@ func assignTerms(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	fmt.Println("policy successfully added to pending policies")
 	fmt.Println("pendingPolicy removed from incomplete policies")
 
-	incompleteAsBytes, err = json.Marshal(incompletePolicies)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("incomplete policies converted to bytes")
-
-	err = write(stub, incompletePoliciesString, incompleteAsBytes)
+	err = writePolicies(stub, incompletePoliciesString, incompletePolicies)
 	if err != nil {
 		return nil, err
 	}
