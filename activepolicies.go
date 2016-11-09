@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -37,12 +38,74 @@ func addActivePolicy(stub *shim.ChaincodeStub, policy Policy) error {
 	activePolicies.Catalog = append(activePolicies.Catalog, policy)
 	fmt.Println("policy appended to active policies")
 
+	err = addPolicyToHolder(stub, policy, policy.HolderID)
 	err = writePolicies(stub, activePoliciesString, activePolicies)
 	if err != nil {
 		return err
 	}
 	fmt.Println("active policies written with new active policy")
 
+	return nil
+}
+
+func addPolicyToHolder(stub *shim.ChaincodeStub, policy Policy, holderID string) error {
+	fmt.Println("Function: addPolicyToHolder")
+
+	holdersAsBytes, err := stub.GetState(holdersString)
+	if err != nil {
+		return err
+	}
+	fmt.Println("holders retrieved as bytes")
+
+	var holders AllHolders
+	err = json.Unmarshal(holdersAsBytes, &holders)
+	if err != nil {
+		return err
+	}
+	fmt.Println("holders retrieved from bytes")
+
+	i := 0
+	var policyHolder PolicyHolder
+	for i < len(holders.Catalog) {
+		if holders.Catalog[i].ID == holderID {
+			policyHolder = holders.Catalog[i]
+			fmt.Println("policy holder found")
+			break
+		}
+		i = i + 1
+	}
+	if policyHolder.ID == "" {
+		policyHolder.ID = holderID
+		tempPolicies := make([]Policy, 0)
+		policyHolder.Policies = tempPolicies
+		fmt.Println("new policy holder added")
+	}
+
+	i = 0
+	for i < len(policyHolder.Policies) {
+		if policyHolder.Policies[i].ID == policy.ID {
+			copy(policyHolder.Policies[:i], policyHolder.Policies[i + 1:])
+			policyHolder.Policies = policyHolder.Policies[:len(policyHolder.Policies) - 1]
+			fmt.Println("matching policy removed from policy holder")
+		}
+		i = i + 1
+	}
+
+	policyHolder.Policies = append(policyHolder.Policies, policy)
+	fmt.Println("policy added to policy holder")
+
+	holdersAsBytes, err = json.Marshal(holders)
+	if err != nil {
+		return err
+	}
+	fmt.Println("holders written to bytes")
+
+	err = write(stub, holdersString, holdersAsBytes)
+	if err != nil {
+		return err
+	}
+	fmt.Println("holders written to blockchain with new policy")
+	
 	return nil
 }
 

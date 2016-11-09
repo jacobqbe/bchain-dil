@@ -12,6 +12,7 @@ type SimpleChaincode struct {}
 var incompletePoliciesString = "_incompletePolicies"
 var pendingPoliciesString = "_pendingPolicies"
 var activePoliciesString = "_activePolicies"
+var holdersString = "_holders"
 
 func main() {
 	fmt.Println("Function: main")
