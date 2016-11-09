@@ -73,8 +73,8 @@ func modifyActivePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error)
 		return nil, err
 	}
 	
-	var modifiedPolicy Policy
-	modifiedPolicy, err = modifyPolicy(stub, activePolicies.Catalog[policyIndex], carrierTerms) 
+
+	err = modifyPolicy(stub, activePolicies.Catalog[policyIndex], carrierTerms) 
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +83,8 @@ func modifyActivePolicy(stub *shim.ChaincodeStub, args []string) ([]byte, error)
 	return nil, nil
 }
 
-func modifyPolicy(stub *shim.ChaincodeStub, policy Policy, terms CarrierTerms) (Policy, error) {
+func modifyPolicy(stub *shim.ChaincodeStub, policy Policy, terms CarrierTerms) error {
 	fmt.Println("Function: modifyPolicy")
-	var resultPolicy Policy
 	
 	i := 0
 	termsIndex := -1
@@ -97,19 +96,19 @@ func modifyPolicy(stub *shim.ChaincodeStub, policy Policy, terms CarrierTerms) (
 		i = i + 1
 	}
 	if termsIndex == -1 {
-		return resultPolicy, errors.New("carrier " + terms.CarrierID + " not found for policy " + policy.ID + ", country of " + terms.Country)
+		return errors.New("carrier " + terms.CarrierID + " not found for policy " + policy.ID + ", country of " + terms.Country)
 	}
 	fmt.Println("terms to modify found")
 	
 	if terms.ID == policy.Terms[termsIndex].ID {
-		return resultPolicy, errors.New("terms submitted are not different than existing terms")
+		return errors.New("terms submitted are not different than existing terms")
 	}
 	policy.Terms[termsIndex] = terms;
 	fmt.Println("terms have been modified")
 
 	pendingPolicies, err := readPolicies(stub, pendingPoliciesString)
 	if err != nil {
-		return resultPolicy, err
+		return err
 	}
 	fmt.Println("pending policies have been retrieved")
 
@@ -127,9 +126,9 @@ func modifyPolicy(stub *shim.ChaincodeStub, policy Policy, terms CarrierTerms) (
 
 	err = writePolicies(stub, pendingPoliciesString, pendingPolicies)
 	if err != nil {
-		return resultPolicy, err
+		return err
 	}
 	fmt.Println("pending policies successfully written with modified policy")
 	
-	return resultPolicy, nil
+	return nil
 }
