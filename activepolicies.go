@@ -121,6 +121,13 @@ func modifyPolicy(stub *shim.ChaincodeStub, policy Policy, terms CarrierTerms) e
 		}
 		i = i + 1
 	}
+
+	i = 0
+	for i < len(policy.Votes){
+		policy.Votes[i].Vote = ""
+		i = i + 1
+	}
+
 	pendingPolicies.Catalog = append(pendingPolicies.Catalog, policy)
 	fmt.Println("modified policy appended to pending policies")
 
