@@ -103,6 +103,8 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 		return assignTerms(stub, args)
 	} else if function == "castVote" {
 		return castVote(stub, args)
+	} else if function == "modifyPolicy" {
+		return modifyActivePolicy(stub, args)
 	}
 	
 	fmt.Println("Invoke did not find a function: " + function)
